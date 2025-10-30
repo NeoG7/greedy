@@ -168,7 +168,7 @@ Dijkstra algorithm = Greedy арга ашиглан хамгийн богино 
 
 
 
-
+<!--  -->
 Одоо харьцуулъя:
 ⚔️ Greedy vs Dijkstra Algorithm
 1️⃣ Тэдний хоорондын холбоо
@@ -202,3 +202,168 @@ Dijkstra algorithm
 
 ✳️ Dijkstra бол Greedy-ийн тусгай хувилбар.
 Тэр “хамгийн бага зардалтай орой”-г greed-ээр сонгоод, бусад замыг сайжруулж явдаг.
+
+
+
+
+# ----------------------------------------------
+# GREEDY ALGORITHM – Coin Change Problem
+# ----------------------------------------------
+def greedy_coin_change(coins, amount):
+    # 1️ Зооснуудыг томоос жижиг рүү эрэмбэлэх
+    coins.sort(reverse=True)
+    result = []  # 2️ Үр дүн хадгалах жагсаалт
+
+    # 3️ Зоос бүрийг шалгах давталт
+    for coin in coins:
+        count = amount // coin  # 4️ Хэдэн ширхэг авах боломжтой вэ?
+        if count > 0:          # 5️ Хэрвээ авна
+            result.append((coin, count))
+            amount -= coin * count  # 6️ Үлдсэн дүнг шинэчлэх
+
+    return result
+
+# ----------------------------------------------
+# Турших хэсэг
+# ----------------------------------------------
+coins = [25, 10, 5, 1]
+amount = 93
+
+change = greedy_coin_change(coins, amount)
+print("Greedy зоос:", change)
+
+
+Гаралт:
+Greedy зоос: [(25, 3), (10, 1), (5, 1), (1, 3)]
+
+
+<!--  -->
+Тайлбар:
+
+Алхам бүрт хамгийн том зоос-ыг авлаа
+
+93₮ = 253 + 101 + 51 + 13
+
+Greedy зарчим: “одоогоор хамгийн сайн алхамыг сонго”
+
+
+
+
+
+
+<!--  -->
+Dijkstra Algorithm (Хамгийн богино зам)
+
+ Даалгавар:
+Нэг эхлэл цэгээс бусад бүх цэг хүртэл хамгийн богино замыг ол.
+
+Граф:
+
+      5
+  A ------ B
+  | \      |
+ 2|  9\    |1
+  |     \  |
+  C ------ D
+       6
+
+
+Nodes: A, B, C, D
+
+Edge weights: A-B=5, A-C=2, A-D=9, B-D=1, C-D=
+
+
+
+import heapq  # Priority Queue ашиглана
+
+# ------------------------------------------------------------
+# DIJKSTRA ALGORITHM
+# ------------------------------------------------------------
+def dijkstra(graph, start):
+    # 1️⃣ Бүх зангилааны зайг ∞ гэж оноох
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0  # Эхлэх цэгийн зай = 0
+
+    # 2️⃣ Priority queue бэлдэх (хамгийн бага зайтай зангилааг автоматаар гаргана)
+    queue = [(0, start)]  # (зай, зангилаа)
+
+    # 3️⃣ Давталт – бүх зангилаагаар
+    while queue:
+        current_distance, current_node = heapq.heappop(queue)
+
+        # 4️⃣ Хэрвээ илүү урт зам байвал алгасна
+        if current_distance > distances[current_node]:
+            continue
+
+        # 5️⃣ Одоогийн зангилааны хөршүүдийг шалгах
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight
+
+            # 6️⃣ Хэрвээ шинэ зай богино байвал шинэчилнэ
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(queue, (distance, neighbor))
+
+    return distances
+
+# ------------------------------------------------------------
+# Граф үүсгэх
+# ------------------------------------------------------------
+graph = {
+    'A': {'B':5, 'C':2, 'D':9},
+    'B': {'A':5, 'D':1},
+    'C': {'A':2, 'D':6},
+    'D': {'A':9, 'B':1, 'C':6}
+}
+
+# ------------------------------------------------------------
+# Турших хэсэг
+# ------------------------------------------------------------
+start_node = 'A'
+shortest_paths = dijkstra(graph, start_node)
+
+print(f"Dijkstra Algorithm үр дүн ({start_node}-с):")
+for node, distance in shortest_paths.items():
+    print(f"{start_node} → {node} = {distance}")
+
+
+<!--  -->
+Гаралт:
+Dijkstra Algorithm үр дүн (A-с):
+A → A = 0
+A → B = 5
+A → C = 2
+A → D = 6
+
+
+
+<!--  -->
+Алхам алхамаар тайлбар
+
+Эхний зай:
+
+A → A = 0
+A → B = 5
+A → C = 2
+A → D = 9
+
+Priority queue-аас хамгийн бага зайтай зангилааг сонгоно:
+C (2) → хөршүүдийг шалгана
+C → D = 2 + 6 = 8 → өмнөх D зай (9) шинэчлэгдэв
+Queue-д дараагийн хамгийн бага: B (5)
+B → D = 5 + 1 = 6 → өмнөх D зай (8) шинэчлэгдэв
+Queue үлдсэн: D → бүх хөрш шалгагдсан, процесс дуусав
+Эцсийн богино зай:
+
+A → A = 0
+A → B = 5
+A → C = 2
+A → D = 6
+
+
+<!--  -->
+Тайлбар:
+Dijkstra нь Greedy зарчмаар ажиллана:
+Алхам бүрт “одоо хамгийн ойр (богино замтай)” зангилааг сонгоно
+Энэ нь хамгийн богино замыг баталгаатай олдог.
+Priority Queue ашигласнаар хамгийн бага зайтай зангилааг хурдан гаргаж авна.
